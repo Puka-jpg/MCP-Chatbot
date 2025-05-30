@@ -1,0 +1,17 @@
+[project]
+name = "neuralflow-technology-chatbot"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "anthropic>=0.52.1",
+    "load-dotenv>=0.1.0",
+    "mcp>=1.9.1",
+    "nest-asyncio>=1.6.0",
+    "numpy>=2.2.6",
+    "python-dateutil>=2.9.0.post0",
+    "python-dotenv>=1.1.0",
+    "tqdm>=4.67.1",
+    "voyageai>=0.3.2",
+]

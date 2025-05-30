@@ -1,0 +1,12 @@
+{
+    "mcpServers": {
+        "rag_neuralflow": {          
+            "command": "uv",
+            "args": ["run","rag_server.py"]
+        },
+        "tools_neuralflow": {              
+            "command": "uv",
+            "args": ["run", "tools_server.py"]
+        }
+    }
+}
