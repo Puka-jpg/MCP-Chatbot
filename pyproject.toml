@@ -6,12 +6,20 @@ readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "anthropic>=0.52.1",
+    "google-api-python-client>=2.170.0",
+    "google-auth>=2.40.2",
+    "google-auth-httplib2>=0.2.0",
+    "google-auth-oauthlib>=1.2.2",
+    "gradio>=5.32.1",
     "load-dotenv>=0.1.0",
     "mcp>=1.9.1",
     "nest-asyncio>=1.6.0",
     "numpy>=2.2.6",
+    "ollama>=0.5.1",
     "python-dateutil>=2.9.0.post0",
     "python-dotenv>=1.1.0",
+    "resend>=2.10.0",
+    "supabase>=2.15.2",
     "tqdm>=4.67.1",
     "voyageai>=0.3.2",
 ]

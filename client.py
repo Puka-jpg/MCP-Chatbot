@@ -12,78 +12,52 @@ load_dotenv()
 
 class NeuralFlowChatBot:
     def __init__(self):
-        self.exit_stack = AsyncExitStack()  #manages async resources
+        self.exit_stack = AsyncExitStack()
         self.anthropic = Anthropic()        
-        # Tools list required for Anthropic API
         self.available_tools = []
-        # Sessions dict maps tool names to MCP client sessions
-        self.sessions = {}      #map tool names to mcp session
+        self.sessions = {}
         self.conversation_history = []
 
-    async def connect_to_server(self, server_name, server_config): # individual server connection process
+    async def connect_to_server(self, server_name, server_config):
         try:
-            #create server parameters from config
             server_params = StdioServerParameters(**server_config)
-            #start the MCP server process and get stdio transport
             stdio_transport = await self.exit_stack.enter_async_context(
                 stdio_client(server_params)
             )
             read, write = stdio_transport
-            #create mcp client session
             session = await self.exit_stack.enter_async_context(
                 ClientSession(read, write)
             )
             await session.initialize()
              
-            try:
-                response = await session.list_tools()
-                
-                # Updated allowed tools - RAG 
-                if server_name == "rag_neuralflow":
-                    allowed_tools = ['semantic_search']
-                elif server_name == "tools_neuralflow":
-                    allowed_tools = ['save_contact_info', 'save_appointment']  
-                else:
-                    allowed_tools = []
-                    
-                for tool in response.tools:
-                    if tool.name in allowed_tools:
-                        self.sessions[tool.name] = session
-                        self.available_tools.append({
-                            "name": tool.name,
-                            "description": tool.description,
-                            "input_schema": tool.inputSchema
-                        })
-                        print(f"Loaded tool: {tool.name}")
+            response = await session.list_tools()
             
-            except Exception as e:
-                print(f"Error loading tools from {server_name}: {e}")
+            # Load all available tools - no filtering needed
+            for tool in response.tools:
+                self.sessions[tool.name] = session
+                self.available_tools.append({
+                    "name": tool.name,
+                    "description": tool.description,
+                    "input_schema": tool.inputSchema
+                })
+                print(f"Loaded tool: {tool.name}")
                 
         except Exception as e:
             print(f"Error connecting to {server_name}: {e}")
 
     async def connect_to_servers(self):
-        try:
-            with open("server_config.json", "r") as file:
-                data = json.load(file)
-            servers = data.get("mcpServers", {})
-            
-            print("🔗 Connecting to MCP servers...")
-            for server_name, server_config in servers.items():
-                await self.connect_to_server(server_name, server_config)
-            
-            print(f"✅ Connected to {len(servers)} server(s)")
-            print(f"Loaded {len(self.available_tools)} tools")
-            
-        except Exception as e:
-            print(f"Error loading server config: {e}")
-            raise
+        with open("server_config.json", "r") as file:
+            data = json.load(file)
+        servers = data.get("mcpServers", {})
+        
+        print("🔗 Connecting to MCP servers...")
+        for server_name, server_config in servers.items():
+            await self.connect_to_server(server_name, server_config)
+        
+        print(f"Connected to {len(servers)} server(s)")
+        print(f"Loaded {len(self.available_tools)} tools")
     
     async def process_query(self, query):
-        """Process user query and handle tool calls"""
-        if not hasattr(self, 'conversation_history'):
-            self.conversation_history = []
-        
         self.conversation_history.append({'role': 'user', 'content': query})
         
         while True:
@@ -104,36 +78,23 @@ WHEN TO USE TOOLS:
 USE semantic_search for company questions:
 - "What services do you offer?"
 - "Tell me about your company"
-- "Do you have testimonials?"
 - Any company-related questions
 
 CONTACT COLLECTION:
-When users want to be contacted or need a phone call:
+When users want to be contacted:
 1. Collect name, phone, and email through natural conversation
-2. You must have ALL THREE pieces before calling save_contact_info
-3. Ask follow-up questions until you have complete information
-4. Call save_contact_info(name, phone, email) ONLY when you have everything
-5. Call the tool ONCE per contact request
+2. Call save_contact_info(name, phone, email) when you have everything
 
 APPOINTMENT BOOKING:
 When users want to book appointments:
-1. Collect name and date through natural conversation
-2. Try to also collect phone and email for better service
-3. Have a complete conversation about their needs
-4. Call save_appointment(name, date, phone, email) ONLY when ready to finalize
-5. Call the tool ONCE per appointment request
+1. Collect name, email, phone, and date through natural conversation
+2. Execute workflow: save_appointment → send_email → update_appointment_status
+3. Handle each step intelligently
 
-CONVERSATION MANAGEMENT RULES:
-- Gather information through natural dialogue
-- Don't rush to call tools immediately
-- Ensure the conversation feels complete before taking action
-- Each tool should be called exactly ONCE per user request
-- Use information from earlier in the conversation (don't ask for the same details twice)
+COMPANY BASICS:
+NeuralFlow is an AI/ML company with 12+ years experience and 250+ completed projects.
 
-COMPANY BASICS (use without tools):
-NeuralFlow is an AI/ML company with 12+ years experience and 250+ completed projects, offering AI agents for customer experience, internal teams, and workflow automation.
-
-Remember: Have conversations, then take action. One tool call per request."""
+Remember: Have conversations, then take action."""
             )
             
             assistant_content = []
@@ -147,52 +108,28 @@ Remember: Have conversations, then take action. One tool call per request."""
                     has_tool_use = True
                     assistant_content.append(content)
                     
-                    # Getting session and calling tool
                     session = self.sessions.get(content.name)
                     if not session:
-                        print(f" Tool '{content.name}' not found.")
+                        print(f"Tool '{content.name}' not found.")
                         break
                     
-                    try:
-                        # Show tool usage for legitimate requests
-                        if any(keyword in query.lower() for keyword in 
-                               ['service', 'company', 'team', 'testimonial', 'about', 'what', 'tell me', 
-                                'contact', 'call', 'reach', 'appointment', 'book', 'schedule', 'meeting']):
-                            print(f"🔧 {content.name}")
-                        
-                        result = await session.call_tool(content.name, arguments=content.input)
-                        
-                        # Print results for contact/appointment tools
-                        if result.content and content.name in ['collect_contact_info', 'book_appointment']:
-                            for item in result.content:
-                                if hasattr(item, 'text'):
-                                    print(item.text)
-                        
-                        # Add assistant message
-                        self.conversation_history.append({'role': 'assistant', 'content': assistant_content})
-                        
-                        # Add tool result
-                        self.conversation_history.append({
-                            "role": "user", 
-                            "content": [
-                                {
-                                    "type": "tool_result",
-                                    "tool_use_id": content.id,
-                                    "content": result.content
-                                }
-                            ]
-                        })
-                        
-                    except Exception as e:
-                        print(f"Error calling tool {content.name}: {e}")
-                        break
+                    print(f"🔧 {content.name}")
+                    result = await session.call_tool(content.name, arguments=content.input)
+                    
+                    self.conversation_history.append({'role': 'assistant', 'content': assistant_content})
+                    self.conversation_history.append({
+                        "role": "user", 
+                        "content": [{
+                            "type": "tool_result",
+                            "tool_use_id": content.id,
+                            "content": result.content
+                        }]
+                    })
             
-            # Exit loop if no tool was used
             if not has_tool_use:
                 break
     
     async def chat_loop(self):
-        """Main chat interface"""
         print("\n" + "="*50)
         print("🤖 NeuralFlow AI Assistant ")
         print("="*50)
@@ -218,11 +155,9 @@ Remember: Have conversations, then take action. One tool call per request."""
                 break
             except Exception as e:
                 print(f"\nSorry, something went wrong: {str(e)}")
-                print("Please try asking your question differently.")
     
     async def cleanup(self):
         await self.exit_stack.aclose()
-
 
 async def main():
     chatbot = NeuralFlowChatBot()
@@ -231,7 +166,6 @@ async def main():
         await chatbot.chat_loop()
     finally:
         await chatbot.cleanup()
-
 
 if __name__ == "__main__":
     asyncio.run(main())

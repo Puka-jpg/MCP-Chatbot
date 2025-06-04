@@ -1,12 +1,28 @@
 {
     "mcpServers": {
-        "rag_neuralflow": {          
+        "rag_neuralflow": {
             "command": "uv",
-            "args": ["run","rag_server.py"]
+            "args": [
+                "run",
+                "rag_server.py"
+            ]
         },
-        "tools_neuralflow": {              
+        "tools_neuralflow": {
             "command": "uv",
-            "args": ["run", "tools_server.py"]
+            "args": [
+                "run",
+                "supabase_tools_server.py"
+            ]
+        },
+
+        "email_appointment": {
+            "command": "uv",
+            "args": [
+                "run",
+                "email_server.py"
+            ]
         }
+        
+        
     }
 }

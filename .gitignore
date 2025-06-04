@@ -42,3 +42,7 @@ anthropic.log
 *.temp
 temp/
 tmp/
+
+gradio_demo.py
+savefileslocally.py
+.gradio
