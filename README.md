@@ -1,5 +1,7 @@
 # 🤖 NeuralFlow AI Assistant
 
+![MCP Architecture Overview](images/mermaid_diagram.png)
+
 A CLI-based AI chatbot that handles company knowledge queries and appointment booking with automatic email confirmations.
 
 ## What It Does
