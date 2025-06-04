@@ -214,7 +214,7 @@ python client.py
 ```
 ## Results in Database
 After the conversation, you can see the data saved in Supabase:
-![Supabase Table update ](images/user_info.png)
+![Supabase Table update ](images/users_info.png)
 ![Appointment status ](images/appointment_status.png)
 
 ## Email Confirmation Received
