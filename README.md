@@ -196,23 +196,23 @@ python client.py
 
 **2. Company question:**
 ```
-💬 You: What services do you provide?
-🔧 semantic_search
-🤖 Neuron: [Detailed response about services]
+You: What services do you provide?
+semantic_search
+Neuron: [Detailed response about services]
 ```
 
 **3. Appointment booking:**
 ```
-💬 You: I want to book an appointment
-🤖 Neuron: I'll help you book an appointment. What's your name?
-💬 You: John Smith
-🤖 Neuron: What's your email address?
-💬 You: john@example.com
+You: I want to book an appointment
+Neuron: I'll help you book an appointment. What's your name?
+You: John Smith
+Neuron: What's your email address?
+ You: john@example.com
 [... conversation continues ...]
-🔧 save_appointment
-🔧 send_email
-🔧 update_appointment_status
-🤖 Neuron: Appointment confirmed! Check your email.
+save_appointment
+send_email
+update_appointment_status
+Neuron: Appointment confirmed! Check your email.
 ```
 ## Results in Database
 After the conversation, you can see the data saved in Supabase:
@@ -267,23 +267,23 @@ The user receives a professional confirmation email:
 When you run `python client.py`, you should see:
 
 ```
-🔗 Connecting to MCP servers...
+ Connecting to MCP servers...
 Loaded tool: semantic_search
 Loaded tool: save_contact_info
 Loaded tool: save_appointment
 Loaded tool: update_appointment_status
 Loaded tool: send_email
-✅ Connected to 3 server(s)
+ Connected to 3 server(s)
 Loaded 5 tools
 
 ==================================================
-🤖 NeuralFlow AI Assistant 
+ NeuralFlow AI Assistant 
 ==================================================
 Hi! I'm Neuron from NeuralFlow Technology.
 Ask me about our AI solutions, team, services, or book an appointment!
 ==================================================
 
-💬 You: 
+ You: 
 ```
 
 If you see this, everything is working correctly!
