@@ -32,7 +32,7 @@ class NeuralFlowChatBot:
              
             response = await session.list_tools()
             
-            # Load all available tools - no filtering needed
+            # Load all available tools
             for tool in response.tools:
                 self.sessions[tool.name] = session
                 self.available_tools.append({
@@ -50,7 +50,7 @@ class NeuralFlowChatBot:
             data = json.load(file)
         servers = data.get("mcpServers", {})
         
-        print("🔗 Connecting to MCP servers...")
+        print("Connecting to MCP servers...")
         for server_name, server_config in servers.items():
             await self.connect_to_server(server_name, server_config)
         
@@ -113,7 +113,7 @@ Remember: Have conversations, then take action."""
                         print(f"Tool '{content.name}' not found.")
                         break
                     
-                    print(f"🔧 {content.name}")
+                    print(f" {content.name}")
                     result = await session.call_tool(content.name, arguments=content.input)
                     
                     self.conversation_history.append({'role': 'assistant', 'content': assistant_content})
@@ -131,7 +131,7 @@ Remember: Have conversations, then take action."""
     
     async def chat_loop(self):
         print("\n" + "="*50)
-        print("🤖 NeuralFlow AI Assistant ")
+        print("NeuralFlow AI Assistant ")
         print("="*50)
         print("Hi! I'm Neuron from NeuralFlow Technology.")
         print("Ask me about our AI solutions, team, services, or book an appointment!")
@@ -139,19 +139,19 @@ Remember: Have conversations, then take action."""
         
         while True:
             try:
-                query = input("\n💬 You: ").strip()
+                query = input("\n You: ").strip()
                 if not query:
                     continue
         
                 if query.lower() in ['quit', 'exit', 'bye']:
-                    print("\n🤖 Neuron: Thanks for chatting! Feel free to reach out anytime. 👋")
+                    print("\nNeuron: Thanks for chatting! Feel free to reach out anytime. ")
                     break
                 
-                print("\n🤖 Neuron:")
+                print("\nNeuron:")
                 await self.process_query(query)
                     
             except KeyboardInterrupt:
-                print("\n🤖 Neuron: Thanks for chatting! Feel free to reach out anytime. 👋")
+                print("\nNeuron: Thanks for chatting! Feel free to reach out anytime. ")
                 break
             except Exception as e:
                 print(f"\nSorry, something went wrong: {str(e)}")

@@ -66,7 +66,7 @@ def save_appointment(name: str, date: str, phone: str = "", email: str = "") -> 
         }
         
         supabase.table("appointments").insert(appointment_data).execute()
-        return f"Appointment booked successfully!\n\n📅 {name} - {date}\n💾 Your appointment has been saved."
+        return f"Appointment booked successfully!\n\n{name} - {date}\n Your appointment has been saved."
         
     except Exception as e:
         return "Sorry, there was a technical issue saving your appointment. Please try again."

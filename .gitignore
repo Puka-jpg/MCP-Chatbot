@@ -46,3 +46,6 @@ tmp/
 gradio_demo.py
 savefileslocally.py
 .gradio
+Dockerfile
+.dockerignore
+gradio_app.py
